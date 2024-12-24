@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>白安圣诞节快乐</title>
+    <style>
+        body {
+            margin: -60;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas">
+    </canvas>
+    <script>
+        // 获取canvas元素和上下文
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // 设定渐变背景（黑紫色和粉色）
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        gradient.addColorStop(0, 'black');
+        gradient.addColorStop(1, '#8e4b97');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 随机生成发光点
+        function randomLight() {
+            return Math.random() * 1 + 1;
+        }
+
+        function drawTree() {
+            ctx.save();
+            ctx.translate(canvas.width / 2-2 , canvas.height / 1.7); 
+
+            let angle = 0;      
+            let radius = 80;   
+            let increment = -0.18;
+            let height = 800; 
+            let maxIterations = 1400; 
+
+            // 绘制圣诞树的螺旋形树枝
+            for (let i = 0; i < maxIterations; i++) {
+                angle += Math.PI / 25;  
+                radius += increment;   
+
+                // 防止半径变成负值
+                if (radius <= 0) {
+                    break;
+                }
+
+                let x = radius * Math.cos(angle);
+                let y = radius * Math.sin(angle);
+
+                // 设置随机的发光点效果
+                ctx.beginPath();
+                ctx.arc(x, y - height * (i / maxIterations), randomLight(), 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 223, 0, ${Math.random() * 0.01 + 1})`; // 随机透明度
+                ctx.fill();
+            }
+
+            // 绘制爱心
+            ctx.beginPath();
+            let heartX = 0; 
+            let heartY = -radius - 270; 
+            let size = 10; 
+
+            ctx.moveTo(heartX, heartY);
+            ctx.bezierCurveTo(heartX - size, heartY - size, heartX - size * 2, heartY + size, heartX, heartY + size * 2);
+            ctx.bezierCurveTo(heartX + size * 2, heartY + size, heartX + size, heartY - size, heartX, heartY);
+
+            ctx.closePath();
+            ctx.fillStyle = "red";
+            ctx.fill();
+            ctx.restore();
+
+        }
+
+        // 随机发光点大小
+        function randomLight() {
+            return Math.random() * 0.5 + 2; 
+        }
+
+        // 绘制白安字
+        function drawText() {
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2 + 200); 
+
+            ctx.font = 'bold 50px STXingkai';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('To 白安つ♡⊂ ', 0, 0);
+
+            ctx.restore();
+        }
+        // 雪花类
+        class Snowflake {
+            constructor() {
+                this.x = Math.random() * canvas.width;  
+                this.y = Math.random() * canvas.height; 
+                this.size = Math.random() * 4 + 1;    
+                this.speed = Math.random() * 1 + 0.5;   
+                this.wind = Math.random() * 0.5 - 0.25; 
+            }
+            update() {
+                this.y += this.speed;  
+                this.x += this.wind;   
+                if (this.y > canvas.height) {
+                    this.y = -this.size;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = "white";
+                ctx.fill();
+            }
+        }
+
+        // 创建雪花数组
+        const snowflakes = [];
+        const snowflakeCount = 200;
+        // 随机生成雪花
+        function createSnowflakes() {
+            for (let i = 0; i < snowflakeCount; i++) {
+                snowflakes.push(new Snowflake());
+            }
+        }
+        // 绘制雪花
+        function drawSnowflakes() {
+            snowflakes.forEach(snowflake => {
+                snowflake.update();
+                snowflake.draw();
+            });
+        }
+        // 动画函数
+        function animate() {
+            // 清除每帧画面
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 重新绘制背景
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // 绘制雪花
+            drawSnowflakes();
+            // 绘制圣诞树
+            drawTree();
+            // 绘制白安文字
+            drawText();
+
+            // 循环调用动画
+            requestAnimationFrame(animate);
+        }
+        // 初始化雪花并启动动画
+        createSnowflakes();
+        // 启动动画
+        animate();
+    </script>
+   
+</body>
+</html>
